@@ -1,10 +1,12 @@
+package UserSystem; // MySQL 연결 확인 및 SELECT * FROM user 실행해서 DB 연결 상태 확인
+
 import java.sql.*;
 
 public class DBTest {
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/java_studyroom_project"; // DB 주소
-        String user = "root"; // 사용자명
-        String password = "0107"; // 비밀번호
+        String user = ""; // 사용자명
+        String password = ""; // 비밀번호
 
         try {
             // 1. 드라이버 로드
@@ -21,7 +23,7 @@ public class DBTest {
 
             // 4. 결과 출력
             while (rs.next()) {
-                System.out.println("사용자 ID: " + rs.getInt("user_id") + ", 닉네임: " + rs.getString("nickname"));
+                System.out.println("사용자 ID: " + rs.getString("username"));
             }
 
             // 5. 연결 종료

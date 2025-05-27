@@ -1,12 +1,14 @@
+package UserSystem;// 회원가입 - 콘솔에서 사용자 입력받고 DB(MySQL)에 직접 저장
+
 import java.sql.*;
 import java.util.Scanner;
 
-public class InsertUserExample {
+public class Signup {
     public static void main(String[] args) {
         // 1. MySQL DB 연결 정보 설정
         String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
-        String dbUser = "root";  // DB 사용자
-        String dbPassword = "0107";  // DB 비밀번호
+        String dbUser = "";  // DB 사용자
+        String dbPassword = "";  // DB 비밀번호
 
         Scanner scanner = new Scanner(System.in);
 
@@ -16,12 +18,6 @@ public class InsertUserExample {
         System.out.print("비밀번호 (password): ");
         String password = scanner.nextLine();
 
-        System.out.print("닉네임 (nickname): ");
-        String nickname = scanner.nextLine();
-
-        System.out.print("이메일 (email): ");
-        String email = scanner.nextLine();
-
         try {
             // 2. MySQL 드라이버 로딩
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -30,7 +26,7 @@ public class InsertUserExample {
             Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
 
             // 4. INSERT SQL 쿼리 준비
-            String sql = "INSERT INTO user (username, password, nickname, email) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO user (username, password) VALUES (?, ?)";
 
             // 5. PreparedStatement 객체 생성
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -38,8 +34,7 @@ public class InsertUserExample {
             // 6. 사용자 입력값을 PreparedStatement에 설정
             pstmt.setString(1, username);   // username
             pstmt.setString(2, password);  // password
-            pstmt.setString(3, nickname);  // nickname
-            pstmt.setString(4, email);  // email
+
 
             // 7. SQL 쿼리 실행 (INSERT 쿼리 실행)
             int result = pstmt.executeUpdate();  // 실행 결과가 0보다 크면 성공

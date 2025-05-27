@@ -1,3 +1,5 @@
+package UserSystem;// 로그인 - 콘솔에서 로그인 정보 입력받고 DB에서 로그인 확인
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -5,8 +7,8 @@ public class Login {
     public static void main(String[] args) {
         // 1. DB 연결 정보
         String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
-        String dbUser = "root";
-        String dbPassword = "0107";
+        String dbUser = "";
+        String dbPassword = "";
 
         Scanner scanner = new Scanner(System.in);
 
