@@ -1,7 +1,7 @@
 # ⚙️ 서버 실행 방법
 
 ### 1. MySQL 실행 및 DB 생성
-- PHPMyAdmin 또는 CLI에서 `user.sql` 실행
+- PHPMyAdmin 또는 CLI에서 `user.sql` 실행, 혹은 cmd에서 직접 입력
   - DB 이름: `java_studyroom_project`
   - 테이블: `user`
 
