@@ -7,8 +7,8 @@ public class Signup {
     public static void main(String[] args) {
         // 1. MySQL DB 연결 정보 설정
         String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
-        String dbUser = "";  // DB 사용자
-        String dbPassword = "";  // DB 비밀번호
+        String dbUser = "root";  // DB 사용자
+        String dbPassword = "0107";  // DB 비밀번호
 
         Scanner scanner = new Scanner(System.in);
 

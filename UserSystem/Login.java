@@ -7,8 +7,8 @@ public class Login {
     public static void main(String[] args) {
         // 1. DB 연결 정보
         String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
-        String dbUser = "";
-        String dbPassword = "";
+        String dbUser = "root";
+        String dbPassword = "0107";
 
         Scanner scanner = new Scanner(System.in);
 
