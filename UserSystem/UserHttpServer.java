@@ -7,8 +7,6 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import com.sun.net.httpserver.HttpServer;
-import java.security.MessageDigest;
 import java.sql.*;
 import java.util.*;
 
@@ -52,11 +50,10 @@ public class UserHttpServer {
                 }
 
                 // 사용자 추가
-                String hashed = hashPassword(newUser.password);
                 String insertSql = "INSERT INTO user (username, password) VALUES (?, ?)";
                 PreparedStatement pstmt = conn.prepareStatement(insertSql);
                 pstmt.setString(1, newUser.username);
-                pstmt.setString(2, hashed);
+                pstmt.setString(2, newUser.password); // 평문 저장
                 pstmt.executeUpdate();
 
                 sendJson(exchange, 200, Map.of("status", "success", "message", "회원가입 완료"));
@@ -89,8 +86,8 @@ public class UserHttpServer {
                     return;
                 }
 
-                String storedHashed = rs.getString("password");
-                if (!storedHashed.equals(hashPassword(loginReq.password))) {
+                String storedPassword = rs.getString("password");
+                if (!storedPassword.equals(loginReq.password)) { // 평문 비교
                     sendJson(exchange, 401, Map.of("status", "fail", "message", "아이디 또는 비밀번호가 잘못되었습니다."));
                     return;
                 }
@@ -99,16 +96,6 @@ public class UserHttpServer {
             } catch (Exception e) {
                 sendJson(exchange, 500, Map.of("status", "error", "message", e.getMessage()));
             }
-        }
-    }
-
-    static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (Exception e) {
-            throw new RuntimeException("암호화 실패");
         }
     }
 
