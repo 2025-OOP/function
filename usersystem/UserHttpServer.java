@@ -40,7 +40,7 @@ public class UserHttpServer {
         server.createContext("/api/mypage", new TodoApiController.MypageHandler());
 
         server.setExecutor(null);
-        System.out.println("✅ HTTP 서버 실행 중 (포트 8080)...");
+        System.out.println("HTTP 서버 실행 중 (포트 8080)...");
         server.start();
     }
 
