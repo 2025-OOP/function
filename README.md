@@ -52,6 +52,8 @@ $ java -cp "lib/*;out" usersystem.UserHttpServer
 ### 마이페이지 조회 (GET /api/mypage)
 ![마이페이지 조회 API 테스트](images/view_mypage.jpg)
 
+
+
 ## 필요 라이브러리
 
 | 파일명 | 설명 |
@@ -60,6 +62,8 @@ $ java -cp "lib/*;out" usersystem.UserHttpServer
 | `gson-2.10.1.jar` | JSON 직렬화/역직렬화 |
 
 ※ IntelliJ의 경우 File > Project Structure > Libraries에서 .jar 등록 필요
+
+
 
 ## API 명세서
 
@@ -91,12 +95,9 @@ $ java -cp "lib/*;out" usersystem.UserHttpServer
 
 ### 마이페이지 조회
 **URL:** `GET /api/mypage?username=owen`
-```json
-{
-  "username": "owen",
-  "todoCount": 5
-}
-```
+
+
+
 
 ## 📂 프로젝트 파일 구성
 
