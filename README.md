@@ -50,7 +50,7 @@ $ java -cp "lib/*;out" usersystem.UserHttpServer
 ![할 일 삭제 API 테스트](images/todo-delete-test.png.jpg)
 
 ### 마이페이지 조회 (GET /api/mypage)
-![마이페이지 조회 API 테스트](images/view_mypage.jpg")
+![마이페이지 조회 API 테스트](images/view_mypage.jpg)
 
 ## 필요 라이브러리
 
