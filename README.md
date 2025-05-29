@@ -31,7 +31,11 @@
 - `UserHttpServer.java` 실행
 - 서버 포트: `8080`
 
-## 🖼Postman 테스트 화면
+$ javac -cp "lib/*" -d out src/usersystem/*.java src/usersystem/api/*.java src/usersystem/model/*.java src/usersystem/service/*.java src/usersystem/storage/*.java src/usersystem/utils/*.java
+
+$ java -cp "lib/*;out" usersystem.UserHttpServer
+
+## Postman 테스트 화면
 
 ### 할 일 추가 (POST /api/todo)
 ![할 일 추가 API 테스트](images/todo-add-test.png.jpg)
@@ -45,7 +49,10 @@
 ### 할 일 삭제 (DELETE /api/todo/{id})
 ![할 일 삭제 API 테스트](images/todo-delete-test.png.jpg)
 
-## 📚 필요 라이브러리
+### 마이페이지 조회 (GET /api/mypage)
+![마이페이지 조회 API 테스트](images/view_mypage.jpg")
+
+## 필요 라이브러리
 
 | 파일명 | 설명 |
 |--------|------|
