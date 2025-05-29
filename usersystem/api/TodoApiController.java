@@ -109,7 +109,6 @@ public class TodoApiController {
                 Map<String, String> params = QueryUtils.parseQuery(query);
                 String userId = params.get("user");
 
-                // ✅ 여기만 수정!
                 List<Todo> todos = todoService.getAllTodosByUser(userId);
                 long completed = todos.stream().filter(Todo::isCompleted).count();
 
