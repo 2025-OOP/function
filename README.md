@@ -31,6 +31,20 @@
 - `UserHttpServer.java` 실행
 - 서버 포트: `8080`
 
+## 🖼️ Postman 테스트 화면
+
+### 할 일 추가 (POST /api/todo)
+![할 일 추가 API 테스트](images/todo-add-test.png)
+
+### 할 일 조회 (GET /api/todo)
+![할 일 조회 API 테스트](images/todo-view-test.png)
+
+### 할 일 수정 (PUT /api/todo/{id})
+![할 일 수정 API 테스트](images/todo-modify-test.png)
+
+### 할 일 삭제 (DELETE /api/todo/{id})
+![할 일 삭제 API 테스트](images/todo-delete-test.png)
+
 ## 필요 라이브러리
 
 | 파일명 | 설명 |
@@ -68,7 +82,7 @@
 ### 할 일 삭제
 **URL:** `DELETE /api/todo/{todoId}`
 
-### 마이페이지 조회
+###  마이페이지 조회
 **URL:** `GET /api/mypage?username=owen`
 ```json
 {
@@ -78,7 +92,7 @@
 ```
 
 
-## 프로젝트 파일 구성
+## 📂 프로젝트 파일 구성
 
 ```
 📁 java_studyroom_project/
