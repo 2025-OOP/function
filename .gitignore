@@ -1,0 +1,53 @@
+Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+# Java
+*.class
+*.log
+*.jar
+*.war
+*.iml
+*.iws
+.idea/
+target/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build tools
+/build/
+/bin/
+/.gradle/
+/mvnw
+
