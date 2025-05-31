@@ -19,11 +19,11 @@
 - todo 테이블 생성:
   ```sql
   CREATE TABLE todo (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      user VARCHAR(255),
-      content VARCHAR(255),
-      completed BOOLEAN,
-      date DATE
+    todo_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL,
+    date DATE NOT NULL,
+    content TEXT NOT NULL,
+    completed BOOLEAN DEFAULT FALSE
   );
   ```
 
