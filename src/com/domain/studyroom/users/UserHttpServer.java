@@ -1,25 +1,37 @@
-package com.domain.studyroom.users;// 	localhost:8080에 HTTP 서버 열고, /signup·/login 요청 처리함
+package com.domain.studyroom.users;
 
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import com.domain.studyroom.db.DB;
+import com.domain.studyroom.todo.TodoController;
+import com.google.gson.*;
+import com.sun.net.httpserver.*;
+import com.domain.studyroom.todo.MypageController;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.*;
+import java.util.*;cd /c/function
 
-import com.google.gson.*;
+
 
 public class UserHttpServer {
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+
+        // 회원 기능
         server.createContext("/signup", new SignupHandler());
         server.createContext("/login", new LoginHandler());
         server.createContext("/logout", new Logout());
+
+        // Todo 기능 핸들러 하나로 통합
+        TodoController todoController = new TodoController();
+        server.createContext("/api/todo", todoController);              // POST / GET
+        server.createContext("/api/todo/update", todoController);       // PUT
+        server.createContext("/api/todo/delete", todoController);       // DELETE
+        server.createContext("/api/mypage", new MypageController());
+
         server.setExecutor(null);
         System.out.println("HTTP 서버 실행 중 (포트 8080)...");
         server.start();
@@ -28,7 +40,7 @@ public class UserHttpServer {
     static class SignupHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            if (!"POST".equals(exchange.getRequestMethod())) {
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 sendResponse(exchange, 405, "Method Not Allowed");
                 return;
             }
@@ -37,8 +49,7 @@ public class UserHttpServer {
             String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             User newUser = gson.fromJson(body, User.class);
 
-            try (Connection conn = getConnection()) {
-                // 중복 사용자 확인
+            try (Connection conn = DB.getConnection()) {
                 String checkSql = "SELECT COUNT(*) FROM user WHERE username = ?";
                 PreparedStatement checkStmt = conn.prepareStatement(checkSql);
                 checkStmt.setString(1, newUser.username);
@@ -49,11 +60,10 @@ public class UserHttpServer {
                     return;
                 }
 
-                // 사용자 추가
                 String insertSql = "INSERT INTO user (username, password) VALUES (?, ?)";
                 PreparedStatement pstmt = conn.prepareStatement(insertSql);
                 pstmt.setString(1, newUser.username);
-                pstmt.setString(2, newUser.password); // 평문 저장
+                pstmt.setString(2, newUser.password);
                 pstmt.executeUpdate();
 
                 sendJson(exchange, 200, Map.of("status", "success", "message", "회원가입 완료"));
@@ -66,7 +76,7 @@ public class UserHttpServer {
     static class LoginHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            if (!"POST".equals(exchange.getRequestMethod())) {
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 sendResponse(exchange, 405, "Method Not Allowed");
                 return;
             }
@@ -75,19 +85,13 @@ public class UserHttpServer {
             String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             User loginReq = gson.fromJson(body, User.class);
 
-            try (Connection conn = getConnection()) {
+            try (Connection conn = DB.getConnection()) {
                 String sql = "SELECT password FROM user WHERE username = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, loginReq.username);
                 ResultSet rs = pstmt.executeQuery();
 
-                if (!rs.next()) {
-                    sendJson(exchange, 401, Map.of("status", "fail", "message", "아이디 또는 비밀번호가 잘못되었습니다."));
-                    return;
-                }
-
-                String storedPassword = rs.getString("password");
-                if (!storedPassword.equals(loginReq.password)) { // 평문 비교
+                if (!rs.next() || !rs.getString("password").equals(loginReq.password)) {
                     sendJson(exchange, 401, Map.of("status", "fail", "message", "아이디 또는 비밀번호가 잘못되었습니다."));
                     return;
                 }
@@ -99,28 +103,38 @@ public class UserHttpServer {
         }
     }
 
-    static void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
-    }
-
-    static void sendJson(HttpExchange exchange, int statusCode, Map<String, Object> responseData) throws IOException {
-        String json = gson.toJson(responseData);
-        exchange.getResponseHeaders().add("Content-Type", "application/json");
-    }
-
-    static Connection getConnection() throws SQLException, ClassNotFoundException {
-        String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
-        String dbUser = "";
-        String dbPassword = "";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(url, dbUser, dbPassword);
+    static class Logout implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendResponse(exchange, 405, "Method Not Allowed");
+                return;
+            }
+            sendJson(exchange, 200, Map.of("status", "success", "message", "로그아웃 되었습니다."));
+        }
     }
 
     static class User {
         String username;
         String password;
     }
+
+    static void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getBytes());
+        }
+    }
+
+    static void sendJson(HttpExchange exchange, int statusCode, Map<String, Object> responseData) throws IOException {
+        String json = gson.toJson(responseData);
+        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().add("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+            os.flush();
+        }
+    }
 }
+

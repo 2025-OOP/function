@@ -1,20 +1,19 @@
 package com.domain.studyroom.todo;
 
+import com.domain.studyroom.db.DB;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class TodoStorage {
-    private Connection getConnection() throws SQLException, ClassNotFoundException {
-        String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
-        String user = "root";
-        String pass = "0327";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(url, user, pass);
-    }
+public class TodoRepository {
 
     public void insertTodo(Todo todo) throws Exception {
-        try (Connection conn = getConnection()) {
+        try (Connection conn = DB.getConnection()) {
             String sql = "INSERT INTO todo (user_id, date, content, completed) VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, todo.getUserId());
@@ -27,11 +26,20 @@ public class TodoStorage {
 
     public List<Todo> selectTodos(String userId, String date) throws Exception {
         List<Todo> list = new ArrayList<>();
-        try (Connection conn = getConnection()) {
-            String sql = "SELECT * FROM todo WHERE user_id = ? AND date = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userId);
-            pstmt.setString(2, date);
+        try (Connection conn = DB.getConnection()) {
+            String sql;
+            PreparedStatement pstmt;
+            if (date != null) {
+                sql = "SELECT * FROM todo WHERE user_id = ? AND date = ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, userId);
+                pstmt.setString(2, date);
+            } else {
+                sql = "SELECT * FROM todo WHERE user_id = ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, userId);
+            }
+
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 list.add(new Todo(
@@ -47,7 +55,7 @@ public class TodoStorage {
     }
 
     public void updateTodo(int todoId, Todo todo) throws Exception {
-        try (Connection conn = getConnection()) {
+        try (Connection conn = DB.getConnection()) {
             String sql = "UPDATE todo SET content = ?, completed = ? WHERE id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, todo.getContent());
@@ -58,11 +66,27 @@ public class TodoStorage {
     }
 
     public void deleteTodo(int todoId) throws Exception {
-        try (Connection conn = getConnection()) {
+        try (Connection conn = DB.getConnection()) {
             String sql = "DELETE FROM todo WHERE id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, todoId);
             pstmt.executeUpdate();
         }
+    }
+
+    // Query parsing utility (moved from QueryUtils)
+    public static Map<String, String> parseQuery(String query) {
+        Map<String, String> map = new HashMap<>();
+        if (query == null || query.isEmpty()) return map;
+
+        String[] pairs = query.split("&");
+        for (String pair : pairs) {
+            String[] parts = pair.split("=");
+            if (parts.length == 2) {
+                map.put(URLDecoder.decode(parts[0], StandardCharsets.UTF_8),
+                        URLDecoder.decode(parts[1], StandardCharsets.UTF_8));
+            }
+        }
+        return map;
     }
 }
