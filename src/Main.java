@@ -1,3 +1,5 @@
+import com.domain.studyroom.timer.TimerController;
+import com.domain.studyroom.todo.MypageController;
 import com.domain.studyroom.todo.TodoController;
 import com.domain.studyroom.users.UserHttpServer;
 import com.sun.net.httpserver.HttpServer;
@@ -16,9 +18,13 @@ public class Main {
         server.createContext("/api/todo/update", todoController);
         server.createContext("/api/todo/delete", todoController);
 
-        server.createContext("/signup", new UserHttpServer.SignupHandler());
-        server.createContext("/login", new UserHttpServer.LoginHandler());
-        server.createContext("/logout", new UserHttpServer.Logout());
+        server.createContext("/api/mypage", new MypageController());
+
+        server.createContext("/api/signup", new UserHttpServer.SignupHandler());
+        server.createContext("/api/login", new UserHttpServer.LoginHandler());
+        server.createContext("/api/logout", new UserHttpServer.Logout());
+
+        server.createContext("/api/saveTime", new TimerController());
 
         server.setExecutor(null);
         server.start();
