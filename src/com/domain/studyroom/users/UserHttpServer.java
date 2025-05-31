@@ -10,34 +10,14 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.*;cd /c/function
+import java.util.*;
 
 
 
 public class UserHttpServer {
     private static final Gson gson = new Gson();
 
-    public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-
-        // 회원 기능
-        server.createContext("/signup", new SignupHandler());
-        server.createContext("/login", new LoginHandler());
-        server.createContext("/logout", new Logout());
-
-        // Todo 기능 핸들러 하나로 통합
-        TodoController todoController = new TodoController();
-        server.createContext("/api/todo", todoController);              // POST / GET
-        server.createContext("/api/todo/update", todoController);       // PUT
-        server.createContext("/api/todo/delete", todoController);       // DELETE
-        server.createContext("/api/mypage", new MypageController());
-
-        server.setExecutor(null);
-        System.out.println("HTTP 서버 실행 중 (포트 8080)...");
-        server.start();
-    }
-
-    static class SignupHandler implements HttpHandler {
+    public static class SignupHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -73,7 +53,7 @@ public class UserHttpServer {
         }
     }
 
-    static class LoginHandler implements HttpHandler {
+    public static class LoginHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -103,7 +83,7 @@ public class UserHttpServer {
         }
     }
 
-    static class Logout implements HttpHandler {
+    public static class Logout implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
