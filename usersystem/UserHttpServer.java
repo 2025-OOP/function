@@ -142,7 +142,7 @@ public class UserHttpServer {
     static Connection getConnection() throws SQLException, ClassNotFoundException {
         String url = "jdbc:mysql://localhost:3306/java_studyroom_project?serverTimezone=UTC&characterEncoding=UTF-8";
         String dbUser = "root";
-        String dbPassword = "0327";
+        String dbPassword = "";
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(url, dbUser, dbPassword);
     }
