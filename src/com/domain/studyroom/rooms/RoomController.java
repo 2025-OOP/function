@@ -49,9 +49,14 @@ public class RoomController implements HttpHandler {
     }
 
     private void handleEnter(HttpExchange exchange, int roomId) throws IOException {
+        JsonObject req = readBody(exchange);
+        String inputPassword = req.has("password") ? req.get("password").getAsString() : null;
         try {
-            if (service.enterRoom(roomId)) send(exchange, 200, "입장 성공");
-            else send(exchange, 400, "입장 실패");
+            if (service.enterRoom(roomId, inputPassword)) {
+                send(exchange, 200, "입장 완료");
+            } else {
+                send(exchange, 400, "잘못된 비밀번호입니다.");
+            }
         } catch (Exception e) {
             send(exchange, 500, e.getMessage());
         }
