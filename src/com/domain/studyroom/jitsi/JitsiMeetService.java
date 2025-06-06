@@ -17,11 +17,9 @@ public class JitsiMeetService {
     public JsonObject enterRoomWithJitsi(int roomId, String username) throws SQLException, ClassNotFoundException {
         JsonObject response = new JsonObject();
 
-        // 이미 방에 있는지 확인
+        // 이미 방에 있다면 기존 참가자 정보 정리 후 재입장
         if (participantRepo.isUserInRoom(roomId, username)) {
-            response.addProperty("success", false);
-            response.addProperty("message", "이미 방에 참가중입니다.");
-            return response;
+            leaveRoomWithCleanup(roomId, username); // 기존 참가자 정보 삭제 후 계속 진행
         }
 
         // 방 존재 확인
