@@ -1,6 +1,13 @@
 package com.domain.studyroom.rooms;
 
+import com.domain.studyroom.db.DB;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RoomService {
     private final RoomRepository repository = new RoomRepository();
@@ -29,4 +36,23 @@ public class RoomService {
     public boolean autoDeleteRoom(int roomId) throws SQLException {
         return repository.autoDeleteRoom(roomId);
     }
+
+    public List<Room> getAllRooms() throws Exception {
+        List<Room> rooms = new ArrayList<>();
+        try (Connection conn = DB.getConnection()) {
+            String sql = "SELECT id, name FROM rooms";  // password는 보내지 않음
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                rooms.add(new Room(
+                        rs.getInt("id"),
+                        rs.getString("name")
+                ));
+            }
+        }
+        return rooms;
+    }
+
+
 }
