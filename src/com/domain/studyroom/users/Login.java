@@ -44,4 +44,3 @@ public class Login {
         scanner.close();
     }
 }
-

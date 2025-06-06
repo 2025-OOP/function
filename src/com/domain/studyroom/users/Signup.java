@@ -42,4 +42,3 @@ public class Signup {
         scanner.close();
     }
 }
-

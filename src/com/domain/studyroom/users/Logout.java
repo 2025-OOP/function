@@ -20,4 +20,3 @@ public class Logout implements HttpHandler {
         ));
     }
 }
-
