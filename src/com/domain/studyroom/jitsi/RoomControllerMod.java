@@ -1,5 +1,6 @@
 package com.domain.studyroom.jitsi;
 
+import com.domain.studyroom.rooms.Room;
 import com.domain.studyroom.rooms.RoomService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -9,6 +10,7 @@ import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoomControllerMod implements HttpHandler {
@@ -52,6 +54,8 @@ public class RoomControllerMod implements HttpHandler {
         } else if (method.equals("DELETE") && path.matches("/api/rooms/\\d+/auto-delete")) {
             int roomId = extractRoomId(path);
             handleAutoDelete(exchange, roomId);
+        } else if (method.equals("GET") && path.equals("/api/rooms/list")) {
+            handleGetRoomList(exchange);
         } else {
             send(exchange, 404, "Not Found");
         }
@@ -145,6 +149,30 @@ public class RoomControllerMod implements HttpHandler {
             send(exchange, 500, e.getMessage());
         }
     }
+
+    private void handleGetRoomList(HttpExchange exchange) throws IOException {
+        try {
+            List<Room> roomList = service.getAllRooms();
+
+            // JSON으로 변환할 수 있도록 객체 구성
+            List<JsonObject> responseList = new ArrayList<>();
+            for (Room room : roomList) {
+                JsonObject roomJson = new JsonObject();
+                roomJson.addProperty("roomId", room.getId());
+                roomJson.addProperty("roomName", room.getName());
+                roomJson.addProperty("passwordProtected", room.getPassword() != null);
+                responseList.add(roomJson);
+            }
+
+            send(exchange, 200, new Gson().toJson(responseList));
+        } catch (Exception e) {
+            JsonObject error = new JsonObject();
+            error.addProperty("success", false);
+            error.addProperty("message", e.getMessage());
+            send(exchange, 500, new Gson().toJson(error));
+        }
+    }
+
 
     // 유틸리티 메소드들
     private JsonObject readBody(HttpExchange exchange) throws IOException {
