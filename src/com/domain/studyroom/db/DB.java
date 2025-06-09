@@ -8,7 +8,7 @@ public class DB {
     public static Connection getConnection() throws SQLException, ClassNotFoundException {
         String url = "jdbc:mysql://localhost:3306/studyroom_db?serverTimezone=UTC&characterEncoding=UTF-8";
         String user = "root";
-        String password = "";
+        String password = "Yoon6337*";
 
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(url, user, password);

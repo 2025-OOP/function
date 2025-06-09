@@ -12,16 +12,14 @@ public class JitsiMeetService {
     private final RoomRepository roomRepo = new RoomRepository();
 
     /**
-     * 방 입장 처리 (Jitsi Meet 설정 포함)
+     * 방 입장 처리 (Jitsi Meet 설정 포함) - 호스트 대기 없이 바로 입장
      */
     public JsonObject enterRoomWithJitsi(int roomId, String username) throws SQLException, ClassNotFoundException {
         JsonObject response = new JsonObject();
 
-        // 이미 방에 있는지 확인
+        // 이미 방에 있다면 기존 참가자 정보 정리 후 재입장
         if (participantRepo.isUserInRoom(roomId, username)) {
-            response.addProperty("success", false);
-            response.addProperty("message", "이미 방에 참가중입니다.");
-            return response;
+            leaveRoomWithCleanup(roomId, username);
         }
 
         // 방 존재 확인
@@ -32,19 +30,43 @@ public class JitsiMeetService {
             return response;
         }
 
-        // 기존 Jitsi 방 이름 확인
-        String jitsiRoomName = participantRepo.getJitsiRoomName(roomId);
+        // 방 정보 가져오기
+        String userRoomName = roomRepo.getRoomName(roomId); // 사용자가 입력한 방 이름
+        String roomCreator = roomRepo.getRoomCreator(roomId); // 방 생성자
+        boolean isCreator = username.equals(roomCreator);
+
+        // 기존 Jitsi 방 이름 확인 (DB에 저장된 고유 방 이름)
+        String existingJitsiRoomName = participantRepo.getJitsiRoomName(roomId);
 
         // Jitsi 설정 생성
         JsonObject jitsiConfig;
-        if (jitsiRoomName == null) {
-            jitsiConfig = JitsiMeetConfig.createConfig("Room" + roomId, username);
-            jitsiRoomName = jitsiConfig.get("roomName").getAsString();
+        String jitsiRoomName;
+
+        if (existingJitsiRoomName == null) {
+            // 새 방 생성 시 (첫 번째 참가자)
+            if (isCreator) {
+                // 방장은 새로운 고유 방 이름으로 생성
+                jitsiConfig = JitsiMeetConfig.createConfigAsModerator(userRoomName, username);
+                jitsiRoomName = jitsiConfig.get("roomName").getAsString();
+            } else {
+                // 첫 번째 참가자가 방장이 아닌 경우 (비정상적 상황)
+                jitsiConfig = JitsiMeetConfig.createConfigAsModerator(userRoomName, username);
+                jitsiRoomName = jitsiConfig.get("roomName").getAsString();
+            }
         } else {
-            jitsiConfig = JitsiMeetConfig.createConfigForExistingRoom(jitsiRoomName, username);
+            // 기존 방 입장 시
+            jitsiRoomName = existingJitsiRoomName;
+            if (isCreator) {
+                // 방장이 재입장하는 경우
+                jitsiConfig = JitsiMeetConfig.createConfigAsModerator(userRoomName, username);
+                jitsiConfig.addProperty("roomName", jitsiRoomName); // 기존 Jitsi 방 이름 유지
+            } else {
+                // 일반 참가자 입장
+                jitsiConfig = JitsiMeetConfig.createConfigAsParticipant(userRoomName, username, jitsiRoomName);
+            }
         }
 
-        // 참여자 추가
+        // 참여자 추가 (Jitsi 방 이름으로 저장)
         participantRepo.addParticipant(roomId, username, jitsiRoomName);
 
         // user_count 증가
@@ -53,6 +75,9 @@ public class JitsiMeetService {
         // 응답 구성
         response.addProperty("success", true);
         response.addProperty("message", "입장 성공");
+        response.addProperty("isHost", isCreator); // 호스트 여부
+        response.addProperty("userRoomName", userRoomName); // 사용자가 보는 방 이름
+        response.addProperty("jitsiRoomName", jitsiRoomName); // Jitsi 연결용 방 이름
         response.add("jitsiConfig", jitsiConfig);
 
         return response;

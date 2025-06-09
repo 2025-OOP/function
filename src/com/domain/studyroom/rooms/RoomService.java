@@ -1,58 +1,59 @@
 package com.domain.studyroom.rooms;
 
-import com.domain.studyroom.db.DB;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RoomService {
     private final RoomRepository repository = new RoomRepository();
 
-    public int createRoom(String name, String password) throws SQLException {
-        return repository.createRoom(name, password);
+    public int createRoom(String name, String password, String creator)
+            throws SQLException, ClassNotFoundException {
+        return repository.createRoom(name, password, creator);
     }
 
-    public boolean enterRoom(int roomId, String inputPassword) throws SQLException {
-        String storedPassword = repository.getRoomPassword(roomId);
+    public int createRoom(String name, String password)
+            throws SQLException, ClassNotFoundException {
+        return repository.createRoom(name, password, "익명");
+    }
 
-        // 비밀번호가 설정돼 있으면 검증
+    public boolean enterRoom(int roomId, String inputPassword)
+            throws SQLException, ClassNotFoundException {
+        String storedPassword = repository.getRoomPassword(roomId);
+        System.out.println("🔍 DB 비밀번호: " + (storedPassword != null ? "***" : "null"));
+        System.out.println("🔍 입력 비밀번호: " + (inputPassword  != null ? "***" : "null"));
+
         if (storedPassword != null && !storedPassword.isEmpty()) {
             if (inputPassword == null || !storedPassword.equals(inputPassword)) {
-                return false; // 비밀번호 틀림
+                System.out.println("❌ 비밀번호 불일치!");
+                return false;
             }
         }
-
+        System.out.println("✅ 비밀번호 검증 통과");
         return repository.enterRoom(roomId);
     }
 
-    public boolean leaveRoom(int roomId) throws SQLException {
+    public boolean leaveRoom(int roomId)
+            throws SQLException, ClassNotFoundException {
         return repository.leaveRoom(roomId);
     }
 
-    public boolean autoDeleteRoom(int roomId) throws SQLException {
+    public boolean autoDeleteRoom(int roomId)
+            throws SQLException, ClassNotFoundException {
         return repository.autoDeleteRoom(roomId);
     }
 
-    public List<Room> getAllRooms() throws Exception {
-        List<Room> rooms = new ArrayList<>();
-        try (Connection conn = DB.getConnection()) {
-            String sql = "SELECT id, name FROM rooms";  // password는 보내지 않음
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                rooms.add(new Room(
-                        rs.getInt("id"),
-                        rs.getString("name")
-                ));
-            }
-        }
-        return rooms;
+    public String getRoomCreator(int roomId)
+            throws SQLException, ClassNotFoundException {
+        return repository.getRoomCreator(roomId);
     }
 
+    public List<Room> getAllRooms()
+            throws SQLException, ClassNotFoundException {
+        return repository.getAllRooms();
+    }
 
+    public Room getRoomById(int roomId)
+            throws SQLException, ClassNotFoundException {
+        return repository.getRoomById(roomId);
+    }
 }
